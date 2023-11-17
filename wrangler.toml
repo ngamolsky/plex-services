@@ -15,3 +15,10 @@ routes = [
 SENDGRID_TO_EMAIL = "plexrequest@gamolsky.net"
 NOTION_PLEX_REQUEST_DATABASE_ID = "e5296ba6f21845cf85201c96e50bddb9"
 
+[env.local]
+vars = { WORKER_ENV = "local", SENDGRID_TO_EMAIL = "plexrequest@gamolsky.net", NOTION_PLEX_REQUEST_DATABASE_ID = "e5296ba6f21845cf85201c96e50bddb9" }
+services = [
+  { binding = "SEND_EMAIL", service = "send-email"}
+]
+
+
