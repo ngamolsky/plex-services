@@ -53,8 +53,12 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 
 	// Allow CORS on localhost
 
+	const environment = env.WORKER_ENV;
+
 	if (env.WORKER_ENV === 'local') {
 		headers.set('Access-Control-Allow-Origin', 'http://localhost:8000');
+	} else {
+		headers.set('Access-Control-Allow-Origin', 'https://gamolsky.net');
 	}
 
 	// Passphrase check just checks if the lowercase input contains the correct passphrase
