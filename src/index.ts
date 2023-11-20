@@ -3,7 +3,7 @@ import { addPlexRequest } from './notion';
 export interface Env {
 	NOTION_INTEGRATION_KEY: string;
 	NOTION_PLEX_REQUEST_DATABASE_ID: string;
-	PLEX_PASSPHRASE_ANSWER_OPTIONS: string;
+	PLEX_PASSPHRASE_ANSWER: string;
 	SENDGRID_TO_EMAIL: string;
 	SEND_EMAIL: Fetcher;
 	WORKER_ENV?: 'local';
@@ -36,14 +36,14 @@ export default {
 const addNewPlexRequest = async (request: Request, env: Env) => {
 	const apiKey = env.NOTION_INTEGRATION_KEY;
 	const databaseId = env.NOTION_PLEX_REQUEST_DATABASE_ID;
-	const correctPassphraseOptions = env.PLEX_PASSPHRASE_ANSWER_OPTIONS.split(', ');
-	const body = (await request.json()) as { title: string; why: string; who: string; passphrase: string; email?: string };
+	const correctPassphrase = env.PLEX_PASSPHRASE_ANSWER;
+	const body = (await request.json()) as { title: string; why: string; who: string; passphrase: string; emailNotify?: string };
 
 	const title = body.title;
 	const why = body.why;
 	const who = body.who;
 	const passphrase = body.passphrase;
-	const email = body.email;
+	const email = body.emailNotify;
 
 	if (!title || !why || !who || !passphrase) {
 		return new Response('Missing required fields', { status: 400 });
@@ -57,11 +57,9 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 		headers.set('Access-Control-Allow-Origin', 'http://localhost:8000');
 	}
 
-	const lowerCaseCorrectPassphraseOptions = correctPassphraseOptions.map((option) => option.toLowerCase());
-
-	// Passphrase check is case insensitive
-	if (lowerCaseCorrectPassphraseOptions.indexOf(passphrase.toLowerCase()) === -1) {
-		return new Response('Incorrect passphrase', {
+	// Passphrase check just checks if the lowercase input contains the correct passphrase
+	if (!passphrase.toLowerCase().includes(correctPassphrase.toLowerCase())) {
+		return new Response('Wrong secret answer. Better call me!', {
 			status: 401,
 			headers: headers,
 		});
