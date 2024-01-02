@@ -73,6 +73,9 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 
 	const sendEmailUrl = env.WORKER_ENV === 'local' ? 'http://localhost:54825' : 'https://send-email.ng-cloudflare.workers.dev/';
 
+	const emailHtml = `<p>${who} requested <strong>${title}</strong> on Plex.</p><p>Why: ${why}</p><p>Requested email notification? ${
+		email ? 'True' : 'False'
+	}.</p><p>Passphrase used: ${passphrase}</p>`;
 	const result = await env.SEND_EMAIL.fetch(sendEmailUrl, {
 		method: 'POST',
 		headers: {
@@ -81,7 +84,7 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 		body: JSON.stringify({
 			toEmail: env.SENDGRID_TO_EMAIL,
 			subject: 'New Plex Request',
-			html: `<p>${who} requested <strong>${title}</strong> on Plex.</p><p>Why: ${why}</p>`,
+			html: emailHtml,
 		}),
 	});
 
