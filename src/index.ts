@@ -37,13 +37,21 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 	const apiKey = env.NOTION_INTEGRATION_KEY;
 	const databaseId = env.NOTION_PLEX_REQUEST_DATABASE_ID;
 	const correctPassphrase = env.PLEX_PASSPHRASE_ANSWER;
-	const body = (await request.json()) as { title: string; why: string; who: string; passphrase: string; emailNotify?: string };
+	const body = (await request.json()) as {
+		title: string;
+		why: string;
+		who: string;
+		passphrase: string;
+		emailNotify?: string;
+		fastSubmit?: boolean;
+	};
 
 	const title = body.title;
 	const why = body.why;
 	const who = body.who;
 	const passphrase = body.passphrase;
 	const email = body.emailNotify;
+	const fast = body.fastSubmit;
 
 	if (!title || !why || !who || !passphrase) {
 		return new Response('Missing required fields', { status: 400 });
@@ -52,9 +60,6 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 	const headers = new Headers(request.headers);
 
 	// Allow CORS on localhost
-
-	const environment = env.WORKER_ENV;
-
 	if (env.WORKER_ENV === 'local') {
 		headers.set('Access-Control-Allow-Origin', 'http://localhost:8000');
 	} else {
@@ -69,7 +74,7 @@ const addNewPlexRequest = async (request: Request, env: Env) => {
 		});
 	}
 
-	await addPlexRequest(apiKey, databaseId, title, why, who, email);
+	await addPlexRequest(apiKey, databaseId, title, why, who, email, fast);
 
 	const sendEmailUrl = env.WORKER_ENV === 'local' ? 'http://localhost:54825' : 'https://send-email.ng-cloudflare.workers.dev/';
 	const requestJson = JSON.stringify(body);

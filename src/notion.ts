@@ -1,6 +1,14 @@
 import { Client } from '@notionhq/client';
 
-export const addPlexRequest = async (apiKey: string, databaseId: string, title: string, why: string, who: string, email?: string) => {
+export const addPlexRequest = async (
+	apiKey: string,
+	databaseId: string,
+	title: string,
+	why: string,
+	who: string,
+	email?: string,
+	fast?: boolean
+) => {
 	const notion = new Client({ auth: apiKey });
 
 	await notion.pages.create({
@@ -42,6 +50,10 @@ export const addPlexRequest = async (apiKey: string, databaseId: string, title: 
 			Email: {
 				type: 'email',
 				email: email || null,
+			},
+			FastSubmit: {
+				type: 'checkbox',
+				checkbox: fast || false,
 			},
 		},
 	});
